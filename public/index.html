@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b18" />
+  <meta name="description" content="A private, personalized AI fortune teller using live horoscope context." />
+  <title>Astral Compass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Astral Compass home">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2L13.5 9.5L21 8L14.5 13L17 21L12 16L7 21L9.5 13L3 8L10.5 9.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+      <span>Astral Compass</span>
+    </a>
+    <div class="top-actions">
+      <span id="livePill" class="live-pill"><i></i> Live celestial data</span>
+      <button id="editProfileBtn" class="ghost-btn" hidden>Edit profile</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- ONBOARDING -->
+    <section id="onboarding" class="onboarding">
+      <div class="orb-wrap" aria-hidden="true">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="orb"><span>☾</span></div>
+      </div>
+      <p class="eyebrow">PERSONAL COSMIC GUIDANCE</p>
+      <h1>What are the stars<br><em>whispering to you?</em></h1>
+      <p class="intro">Share two details to begin. Your profile stays in this browser only — you can clear it any time.</p>
+      <form id="startForm" class="start-card">
+        <label for="uname">What should I call you?</label>
+        <input id="uname" name="uname" autocomplete="given-name" maxlength="80" placeholder="Your first name" required />
+        <label for="birthday">When were you born?</label>
+        <input id="birthday" name="birthday" type="date" required />
+        <button class="primary-btn" type="submit">Reveal my path <span aria-hidden="true">→</span></button>
+        <p class="tiny">For entertainment and self-reflection only. Not professional advice.</p>
+      </form>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="dashboard" hidden>
+      <div class="welcome-row">
+        <div>
+          <p class="eyebrow">YOUR READING</p>
+          <h1 id="welcomeTitle">Welcome back</h1>
+          <p id="dateLine" class="muted"></p>
+        </div>
+        <div class="sign-badge">
+          <span id="signGlyph" aria-hidden="true">✦</span>
+          <div><small>SUN SIGN</small><strong id="signName">—</strong></div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- LEFT COLUMN -->
+        <aside class="left-column">
+          <article class="glass-card daily-card">
+            <div class="card-head">
+              <div><p class="eyebrow">TODAY'S ENERGY</p><h2 id="dailyTitle">Your cosmic weather</h2></div>
+              <span id="energyScore" class="score">—</span>
+            </div>
+            <p id="dailyText" class="reading-text is-loading">Reading the sky…</p>
+            <div id="signalBars" class="signals"></div>
+            <a class="source-link" href="https://aztro.sameerkumar.website" target="_blank" rel="noopener">Horoscope data via Aztro ↗</a>
+          </article>
+
+          <article class="glass-card profile-card">
+            <div class="card-head">
+              <div><p class="eyebrow">MAKE IT PERSONAL</p><h2>Shape your readings</h2></div>
+              <span id="profileProgress">20%</span>
+            </div>
+            <div class="progress"><i id="progressBar" style="width:20%"></i></div>
+            <p class="muted compact">Real-life context helps the oracle give sharper, more useful answers.</p>
+            <button id="openProfileBtn" class="secondary-btn">Add personal context</button>
+          </article>
+
+          <article class="glass-card period-card">
+            <div class="tabs" role="tablist">
+              <button class="tab active" role="tab" aria-selected="true" data-period="weekly">This week</button>
+              <button class="tab" role="tab" aria-selected="false" data-period="monthly">This month</button>
+            </div>
+            <p id="periodText" class="reading-text small is-loading">Gathering the wider pattern…</p>
+          </article>
+        </aside>
+
+        <!-- CHAT -->
+        <section class="glass-card chat-card">
+          <div class="chat-head">
+            <div class="seer-icon" aria-hidden="true">✧</div>
+            <div>
+              <h2>Ask the Oracle</h2>
+              <p><span class="status-dot"></span> Drawing from your unique profile</p>
+            </div>
+            <button id="clearChatBtn" class="icon-btn" title="Clear conversation" aria-label="Clear conversation">↻</button>
+          </div>
+
+          <div id="suggestions" class="suggestions" role="list">
+            <button role="listitem">What should I focus on today?</button>
+            <button role="listitem">What opportunity am I overlooking?</button>
+            <button role="listitem">How can I improve my relationships?</button>
+            <button role="listitem">Is this a good time to take a risk?</button>
+          </div>
+
+          <div id="messages" class="messages" aria-live="polite" aria-label="Oracle conversation">
+            <div class="message oracle">
+              <div class="avatar" aria-hidden="true">✦</div>
+              <div class="bubble"><p id="greeting">The veil is opening… ask what is weighing on your mind.</p></div>
+            </div>
+          </div>
+
+          <form id="chatForm" class="chat-input-wrap">
+            <label class="sr-only" for="chatInput">Ask the oracle</label>
+            <textarea id="chatInput" rows="1" maxlength="2000" placeholder="Ask about love, work, a decision, or your path…" required></textarea>
+            <button id="sendBtn" type="submit" aria-label="Send question">↑</button>
+          </form>
+          <p class="chat-note">Readings suggest possibilities — not certainties. You make your own choices.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- PROFILE DIALOG -->
+  <dialog id="profileDialog" aria-label="Personal profile">
+    <form id="profileForm" method="dialog" class="dialog-card">
+      <div class="dialog-head">
+        <div><p class="eyebrow">YOUR PRIVATE PROFILE</p><h2>Help me understand you</h2></div>
+        <button class="icon-btn close-btn" value="cancel" type="submit" aria-label="Close dialog">×</button>
+      </div>
+      <p class="muted">Only answer what feels comfortable. Details stay in your browser and are only used to personalise your readings.</p>
+      <div class="form-grid">
+        <label>Current life focus
+          <select name="focus">
+            <option value="">Choose one</option>
+            <option>Love and relationships</option>
+            <option>Career and purpose</option>
+            <option>Money and stability</option>
+            <option>Family and home</option>
+            <option>Personal growth</option>
+            <option>Health and balance</option>
+          </select>
+        </label>
+        <label>Relationship status
+          <select name="relationship">
+            <option value="">Prefer not to say</option>
+            <option>Single</option>
+            <option>Dating</option>
+            <option>In a relationship</option>
+            <option>Married or committed</option>
+            <option>It's complicated</option>
+          </select>
+        </label>
+        <label>Your work or current role
+          <input name="work" maxlength="300" placeholder="e.g. Retail manager, student, creative" />
+        </label>
+        <label>A goal you're actively pursuing
+          <input name="goal" maxlength="300" placeholder="What are you trying to make happen?" />
+        </label>
+        <label>Your biggest current challenge
+          <textarea name="challenge" rows="2" maxlength="300" placeholder="What's been taking up your energy?"></textarea>
+        </label>
+        <label>How you typically make decisions
+          <select name="decisionStyle">
+            <option value="">Choose one</option>
+            <option>I trust my instincts</option>
+            <option>I analyze every angle</option>
+            <option>I ask people I trust</option>
+            <option>I tend to delay hard choices</option>
+          </select>
+        </label>
+        <label>Preferred reading style
+          <select name="responseStyle">
+            <option value="">Balanced</option>
+            <option>Direct and practical</option>
+            <option>Gentle and reassuring</option>
+            <option>Mystical and poetic</option>
+            <option>Detailed and analytical</option>
+          </select>
+        </label>
+        <label>Anything else to remember
+          <textarea name="notes" rows="3" maxlength="500" placeholder="Interests, key priorities, important context…"></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button id="deleteProfileBtn" class="danger-btn" type="button">Delete my data</button>
+        <button class="primary-btn" value="save" type="submit">Save profile</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>
