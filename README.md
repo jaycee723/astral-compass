@@ -1,0 +1,192 @@
+# Astral Compass 🔮
+
+An AI-powered fortune-teller web app that combines a user's **name**, **birthday**, and an optional **private profile** with live horoscope data (daily, weekly, monthly, moon phase, and cosmic events) to generate deeply personalized AI readings.
+
+Built with **Node.js + Express** on the backend and plain HTML/CSS/JS on the frontend. No framework required — runs anywhere Node 18+ runs.
+
+---
+
+## ✨ Features
+
+- **Onboarding** — prompts for first name and birthday; auto-calculates Western sun sign
+- **Live horoscope data** — pulls from [Sigastra's free JSON API](https://sigastra.com/partners/api): daily, weekly, monthly, moon phase, and cosmic context
+- **AI Oracle chat** — powered by [Groq's free API](https://console.groq.com) using `qwen/qwen3.8-27b`
+- **Dynamic profile builder** — the oracle asks one targeted follow-up question when useful context is missing, and a dedicated profile panel collects:
+  - Life focus area
+  - Relationship status
+  - Current work/role
+  - Active goal
+  - Biggest challenge
+  - Decision-making style
+  - Preferred reading tone
+  - Open notes
+- **Profile progress bar** — shows how complete the personalization is (20–100%)
+- **Love / Work / Energy signal bars** — visual summary of today's cosmic energy scores
+- **Weekly / Monthly period toggle** — switch between wider patterns at a glance
+- **Session persistence** — profile and last 10 chat messages saved to `localStorage`
+- **One-tap data deletion** — users can clear all stored data instantly
+- **Security** — API key stays server-side; rate limiting on all endpoints; input sanitization; prompt-injection protection
+- **Responsive** — works on mobile, tablet, and desktop
+
+---
+
+## 🗂 Project Structure
+
+```
+astral-compass/
+├── server.js              # Express server: horoscope proxy + Groq AI chat endpoint
+├── package.json
+├── .env.example           # Copy to .env and add your Groq key
+├── .gitignore
+├── docs/
+│   ├── DEPLOYMENT.md      # Full hosting instructions (Render, Railway, VPS, custom domain)
+│   └── ARCHITECTURE.md    # How the pieces connect
+└── public/
+    ├── index.html         # Single-page UI
+    ├── styles.css         # Dark cosmic theme, responsive
+    └── app.js             # Frontend logic: zodiac calc, profile, horoscope render, chat
+```
+
+---
+
+## 🚀 Quick Start (local)
+
+**Prerequisites:** Node.js 18+
+
+1. Clone the repo:
+
+```bash
+git clone https://github.com/jaycee723/astral-compass.git
+cd astral-compass
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure environment:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and add your [Groq API key](https://console.groq.com/keys):
+
+```env
+GROQ_API_KEY=your_groq_key_here
+PORT=3000
+```
+
+4. Start the server:
+
+```bash
+npm start
+```
+
+5. Open **http://localhost:3000** in your browser.
+
+For development with auto-restart on file changes:
+
+```bash
+npm run dev
+```
+
+---
+
+## 🌐 Deploy to the Web
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for full step-by-step instructions covering:
+
+- Render (free tier, easiest)
+- Railway
+- DigitalOcean / Linode / VPS
+- Custom domain setup
+- Embedding into WordPress, Shopify, or Wix
+
+---
+
+## 🔑 Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `GROQ_API_KEY` | ✅ Yes | Your Groq API key from [console.groq.com](https://console.groq.com/keys) |
+| `PORT` | Optional | Port to listen on (default: `3000`) |
+
+**Never commit `.env` to Git.** It is already listed in `.gitignore`.
+
+---
+
+## 🛰 API Reference
+
+### `GET /api/horoscope?sign={sign}`
+
+Fetches live horoscope data for the given sun sign.
+
+- **sign** — lowercase zodiac sign (e.g. `leo`, `scorpio`)
+- Returns: `{ daily, weekly, monthly, moon, cosmic }`
+- Cached for 15 minutes, stale-while-revalidate 1 hour
+- Rate limited: 30 requests/minute
+
+### `POST /api/chat`
+
+Sends a question to the AI oracle.
+
+**Body:**
+```json
+{
+  "profile": { "name": "...", "birthday": "YYYY-MM-DD", "sign": "...", ... },
+  "horoscope": { ... },
+  "messages": [ { "role": "user", "content": "..." } ]
+}
+```
+
+- Rate limited: 12 requests/minute
+- Last 10 messages used as context
+- Returns: `{ answer, model }`
+
+### `GET /api/health`
+
+Returns `{ ok: true, aiConfigured: true/false }`
+
+---
+
+## 📦 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Server | Node.js + Express |
+| AI | Groq API — `qwen/qwen3.8-27b` |
+| Horoscope data | Sigastra JSON API |
+| Frontend | Vanilla HTML / CSS / JS |
+| Fonts | Google Fonts (DM Sans, Playfair Display) |
+| Security | Helmet, express-rate-limit |
+| Storage | Browser localStorage (no database) |
+
+---
+
+## 📜 Attribution & Licenses
+
+- **Horoscope data** is provided by [Sigastra](https://sigastra.com). Their license requires the visible **"Powered by Sigastra"** do-follow link, which is rendered below the daily reading. Do not remove it.
+- **AI responses** are generated by Groq and are for entertainment and self-reflection only. They are not professional medical, legal, or financial advice.
+- This project's source code is released under the [MIT License](LICENSE).
+
+---
+
+## 🔒 Security & Privacy
+
+- The Groq API key lives only on the server — it is never sent to the browser.
+- User profiles are stored in the browser's own `localStorage` only — no server database, no accounts.
+- All user input is length-limited and sanitized before being sent to the AI.
+- The AI system prompt explicitly blocks prompt-injection attempts and refuses to reproduce the prompt.
+
+---
+
+## 🗺 Roadmap (ideas)
+
+- [ ] Chinese/Vedic astrology support
+- [ ] Birth time + location for rising sign calculation
+- [ ] Compatibility readings between two people
+- [ ] Daily push notifications (PWA)
+- [ ] Shareable reading cards
